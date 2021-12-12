@@ -13,7 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping(API.V1.PATH)
+@RequestMapping(API.V1.COMMENTS)
 @RequiredArgsConstructor
 public class CommentsController {
     private final CommentsService service;
