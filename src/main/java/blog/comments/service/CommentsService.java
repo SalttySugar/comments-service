@@ -11,6 +11,7 @@ public interface CommentsService {
     Flux<Comment> findAll();
     Mono<Comment> create(CreateCommentDTO dto);
     Mono<Comment> update(String id, UpdateCommentDTO dto);
-    Mono<Comment> addReplyToComment(String id, CreateCommentDTO dto);
+    Mono<Comment> addReply(String id, CreateCommentDTO dto);
+    Flux<Comment> getReplies(String id);
     Mono<Void> deleteById(String id);
 }

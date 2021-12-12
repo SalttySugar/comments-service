@@ -14,7 +14,4 @@ import java.util.List;
 public final class UpdateCommentDTO {
     @JsonProperty(required = true)
     String message;
-
-    @Builder.Default
-    List<String> replies = new ArrayList<>();
 }

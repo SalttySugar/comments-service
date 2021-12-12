@@ -6,6 +6,7 @@ import blog.comments.dto.ResponseCommentDTO;
 import blog.comments.dto.UpdateCommentDTO;
 import blog.comments.service.CommentsService;
 import blog.comments.utils.ApplicationConverter;
+import io.swagger.models.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -44,8 +45,24 @@ public class CommentsController {
 
     }
 
+
     @DeleteMapping("/{id}")
     Mono<Void> delete(@PathVariable String id) {
         return service.deleteById(id);
+    }
+
+
+
+    // === REPLIES === //
+    @PostMapping("/{id}/replies")
+    Mono<ResponseCommentDTO> createReply(@PathVariable String id, @RequestBody CreateCommentDTO dto) {
+        return service.addReply(id, dto)
+                .map(converter.convert(ResponseCommentDTO.class));
+    }
+
+    @GetMapping("/{id}/replies")
+    Flux<ResponseCommentDTO> getReplies(@PathVariable String id) {
+        return service.getReplies(id)
+                .map(converter.convert(ResponseCommentDTO.class));
     }
 }

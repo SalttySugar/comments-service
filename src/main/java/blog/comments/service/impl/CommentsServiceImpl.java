@@ -49,19 +49,28 @@ public class CommentsServiceImpl implements CommentsService {
     @Override
     public Mono<Comment> update(String id, UpdateCommentDTO dto) {
         return repository.findById(id)
-                .flatMap(updateCommentFromDto(dto))
+                .map(updateCommentFromDto(dto))
                 .doOnNext(comment -> publisher.publishEvent(new CommentUpdatedEvent(this, comment)));
     }
 
     @Override
-    public Mono<Comment> addReplyToComment(String id, CreateCommentDTO dto) {
+    public Mono<Comment> addReply(String id, CreateCommentDTO dto) {
         return repository.findById(id)
                 .flatMap(comment ->
                     Mono.just(dto)
                             .flatMap(this::create)
-                            .map(c -> c)
-                )
+                            .map(c -> {
+                                comment.getReplies().add(c);
+                                return comment;
+                            })
+                );
 
+    }
+
+    @Override
+    public Flux<Comment> getReplies(String id) {
+        return repository.findById(id)
+                .flatMapIterable(Comment::getReplies);
     }
 
     @Override
@@ -73,12 +82,11 @@ public class CommentsServiceImpl implements CommentsService {
 
 
     // ========= ----- HELPERS ----- ========= //
-    protected Function<Comment, Mono<Comment>> updateCommentFromDto(UpdateCommentDTO dto) {
-        return comment -> getRepliesFromIdsCollection(dto.getReplies()).collectList()
-                .map(replies -> {
-                    comment.setMessage(dto.getMessage());
-                    return comment;
-                });
+    protected Function<Comment, Comment> updateCommentFromDto(UpdateCommentDTO dto) {
+        return  comment -> {
+            comment.setMessage(dto.getMessage());
+            return comment;
+        };
     }
 
     protected Flux<Comment> getRepliesFromIdsCollection(Collection<String> ids) {
