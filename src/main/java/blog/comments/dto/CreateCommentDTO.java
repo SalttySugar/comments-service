@@ -1,6 +1,7 @@
 package blog.comments.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
 import lombok.*;
 
 @Builder
@@ -8,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@ApiModel("Create comment")
 public final class CreateCommentDTO {
     @JsonProperty(required = true)
     String message;

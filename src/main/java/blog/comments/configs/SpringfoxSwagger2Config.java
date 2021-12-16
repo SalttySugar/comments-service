@@ -1,5 +1,6 @@
 package blog.comments.configs;
 
+import blog.comments.constant.API;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.PathSelectors;
@@ -14,7 +15,7 @@ public class SpringfoxSwagger2Config {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.any())
+                .paths(PathSelectors.ant(API.PATH + "/**"))
                 .build();
     }
 }

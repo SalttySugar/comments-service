@@ -1,3 +1,8 @@
+info:
+  version: "1.0.0"
+  title: My API title
+  description: "Awesome description"
+
 spring:
   data:
     mongodb:
