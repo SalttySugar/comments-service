@@ -13,5 +13,7 @@ public interface CommentsService {
     Mono<Comment> update(String id, UpdateCommentDTO dto);
     Mono<Comment> addReply(String id, CreateCommentDTO dto);
     Flux<Comment> getReplies(String id);
+    Mono<Comment> save(Comment comment);
+    Mono<Boolean> existsById(String id);
     Mono<Void> deleteById(String id);
 }

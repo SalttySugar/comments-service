@@ -11,7 +11,6 @@ import blog.comments.repository.CommentsRepository;
 import blog.comments.service.CommentsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -57,12 +56,12 @@ public class CommentsServiceImpl implements CommentsService {
     public Mono<Comment> addReply(String id, CreateCommentDTO dto) {
         return repository.findById(id)
                 .flatMap(comment ->
-                    Mono.just(dto)
-                            .flatMap(this::create)
-                            .map(c -> {
-                                comment.getReplies().add(c);
-                                return comment;
-                            })
+                        Mono.just(dto)
+                                .flatMap(this::create)
+                                .map(c -> {
+                                    comment.getReplies().add(c);
+                                    return comment;
+                                })
                 );
 
     }
@@ -71,6 +70,16 @@ public class CommentsServiceImpl implements CommentsService {
     public Flux<Comment> getReplies(String id) {
         return repository.findById(id)
                 .flatMapIterable(Comment::getReplies);
+    }
+
+    @Override
+    public Mono<Comment> save(Comment comment) {
+        return repository.save(comment);
+    }
+
+    @Override
+    public Mono<Boolean> existsById(String id) {
+        return repository.existsById(id);
     }
 
     @Override
@@ -83,7 +92,7 @@ public class CommentsServiceImpl implements CommentsService {
 
     // ========= ----- HELPERS ----- ========= //
     protected Function<Comment, Comment> updateCommentFromDto(UpdateCommentDTO dto) {
-        return  comment -> {
+        return comment -> {
             comment.setMessage(dto.getMessage());
             return comment;
         };
