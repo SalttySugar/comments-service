@@ -1,11 +1,9 @@
 package blog.comments.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.validation.constraints.NotBlank;
 
 @Builder
 @Data
@@ -14,6 +12,6 @@ import java.util.List;
 @EqualsAndHashCode
 @ApiModel("Update comment")
 public final class UpdateCommentDTO {
-    @JsonProperty(required = true)
+    @NotBlank(message = "field \"message\" is required and cannot be blank")
     String message;
 }

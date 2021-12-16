@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import lombok.*;
 
+import javax.validation.constraints.NotBlank;
+
 @Builder
 @Data
 @AllArgsConstructor
@@ -11,10 +13,12 @@ import lombok.*;
 @EqualsAndHashCode
 @ApiModel("Create comment")
 public final class CreateCommentDTO {
-    @JsonProperty(required = true)
+    @NotBlank(message = "field \"message\" is required and cannot be blank")
     String message;
-    @JsonProperty( value = "publisher_id", required = true)
+    @NotBlank(message = "field \"published_id\" is required and cannot be blank")
+    @JsonProperty("publisher_id")
     String publisherId;
-    @JsonProperty( value = "record_id", required = true)
+    @NotBlank(message = "field \"record_id\" is required and cannot be blank")
+    @JsonProperty("record_id")
     String recordId;
 }

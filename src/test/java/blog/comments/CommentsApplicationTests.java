@@ -57,6 +57,25 @@ class CommentsApplicationTests extends BaseIntegrationTest {
 
 
     @Test
+    void shouldReturn404WhenCommentDoesNotExists() {
+        var uri = API.PATH + "/" + "sure_that_this_does_not_exists";
+        var dto = new UpdateCommentDTO("valid comment message");
+        client.get()
+                .uri(uri)
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNotFound();
+
+        client.put()
+                .uri(uri)
+                .body(BodyInserters.fromValue(dto))
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+
+    @Test
     void shouldCreateNewCommentAndThenReturnIt() {
         var dto = CreateCommentDTO.builder()
                 .message("test comment")
@@ -132,5 +151,38 @@ class CommentsApplicationTests extends BaseIntegrationTest {
         StepVerifier.create(commentsService.existsById(comment.getId()).log())
                 .expectNext(false)
                 .verifyComplete();
+    }
+
+
+    @Test
+    void shouldReturn400IfCreateCommentDTOIsInvalid() {
+        var dto = new CreateCommentDTO();
+
+        client.post()
+                .uri(API.PATH)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(dto))
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+
+    @Test
+    void shouldReturn400IfUpdateCommentDTOIsInvalid() {
+        var comment = commentsService.create(CreateCommentDTO.builder()
+                .recordId("test_record_id")
+                .message("test_message")
+                .publisherId("test_publisher_id")
+                .build()).block();
+
+        var dto = new UpdateCommentDTO();
+        client.put()
+                .uri(API.PATH + "/" + comment.getId())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(dto))
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 }
