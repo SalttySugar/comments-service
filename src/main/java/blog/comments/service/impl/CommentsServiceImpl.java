@@ -2,7 +2,7 @@ package blog.comments.service.impl;
 
 import blog.comments.dto.CreateCommentDTO;
 import blog.comments.dto.UpdateCommentDTO;
-import blog.comments.errors.CommentNotFound;
+import blog.comments.exceptions.CommentNotFoundException;
 import blog.comments.events.CommentCreatedEvent;
 import blog.comments.events.CommentDeletedEvent;
 import blog.comments.events.CommentUpdatedEvent;
@@ -29,7 +29,7 @@ public class CommentsServiceImpl implements CommentsService {
     @Override
     public Mono<Comment> findById(String id) {
         return repository.findById(id)
-                .switchIfEmpty(Mono.error(new CommentNotFound(id)));
+                .switchIfEmpty(Mono.error(new CommentNotFoundException(id)));
     }
 
     @Override

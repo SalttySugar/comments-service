@@ -177,6 +177,7 @@ class CommentsApplicationTests extends BaseIntegrationTest {
                 .build()).block();
 
         var dto = new UpdateCommentDTO();
+        assert comment != null;
         client.put()
                 .uri(API.PATH + "/" + comment.getId())
                 .accept(MediaType.APPLICATION_JSON)
@@ -185,4 +186,48 @@ class CommentsApplicationTests extends BaseIntegrationTest {
                 .exchange()
                 .expectStatus().isBadRequest();
     }
+
+
+    @Test
+    void shouldFireEventWhenCommentCreated() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Test
+    void shouldFireEventWhenCommentUpdated() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Test
+    void shouldFireEventWhenCommentDeleted() {
+        throw new RuntimeException("not implemented");
+    }
+
+    // ==== FILTERS  ==== //
+    @Test
+    void shouldReturnCollectionOfCommentsBeforeSpecificDate() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Test
+    void shouldReturnCollectionOfCommentsAfterSpecificDate() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Test
+    void shouldReturnCollectionOfCommentsCreatedBySpecificUser() {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Test
+    void shouldReturnCollectionOfCommentsThatBelongsToSpecificRecord() {
+        throw new RuntimeException("not implemented");
+    }
+
+
+    @Test
+    void shouldReturnCollectionOfCommentsThatMatchSpecificIds() {
+        throw new RuntimeException("not implemented");
+    }
+
 }
