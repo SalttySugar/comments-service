@@ -2,15 +2,17 @@ package blog.comments.service.impl;
 
 import blog.comments.dto.CreateCommentDTO;
 import blog.comments.dto.UpdateCommentDTO;
-import blog.comments.exceptions.CommentNotFoundException;
 import blog.comments.events.CommentCreatedEvent;
 import blog.comments.events.CommentDeletedEvent;
 import blog.comments.events.CommentUpdatedEvent;
+import blog.comments.exceptions.CommentNotFoundException;
 import blog.comments.model.Comment;
 import blog.comments.repository.CommentsRepository;
+import blog.comments.service.CommentCriteria;
 import blog.comments.service.CommentsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -24,6 +26,7 @@ import java.util.function.Function;
 public class CommentsServiceImpl implements CommentsService {
     private final CommentsRepository repository;
     private final ApplicationEventPublisher publisher;
+    private final ReactiveMongoTemplate template;
 
 
     @Override
@@ -36,6 +39,17 @@ public class CommentsServiceImpl implements CommentsService {
     public Flux<Comment> findAll() {
         return repository.findAll();
     }
+
+    @Override
+    public Flux<Comment> findAll(CommentCriteria criteria) {
+        return template.findAll()
+    }
+
+    @Override
+    public Mono<Comment> findOne(CommentCriteria criteria) {
+        return findAll(criteria).next();
+    }
+
 
     @Override
     public Mono<Comment> create(CreateCommentDTO dto) {
