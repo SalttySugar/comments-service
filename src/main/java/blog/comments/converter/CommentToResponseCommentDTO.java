@@ -24,7 +24,7 @@ public final class CommentToResponseCommentDTO implements Converter<Comment, Com
                 .updatedOn(source.getUpdatedOn())
                 .recordId(source.getRecordId())
                 .updatedOn(source.getUpdatedOn())
-                .publisherId(source.getPublisherId())
+                .publisherId(source.getOwnerId())
                 .replies(replies)
                 .build();
     }

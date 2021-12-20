@@ -10,15 +10,17 @@ import blog.comments.model.Comment;
 import blog.comments.repository.CommentsRepository;
 import blog.comments.service.CommentCriteria;
 import blog.comments.service.CommentsService;
+import blog.comments.utils.ApplicationConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Date;
 import java.util.function.Function;
 
 @Service
@@ -27,6 +29,7 @@ public class CommentsServiceImpl implements CommentsService {
     private final CommentsRepository repository;
     private final ApplicationEventPublisher publisher;
     private final ReactiveMongoTemplate template;
+    private final ApplicationConverter converter;
 
 
     @Override
@@ -42,7 +45,9 @@ public class CommentsServiceImpl implements CommentsService {
 
     @Override
     public Flux<Comment> findAll(CommentCriteria criteria) {
-        return template.findAll()
+        return Flux.just(criteria)
+                .map(converter.convert(Query.class))
+                .flatMap(query -> template.find(query, Comment.class));
     }
 
     @Override
@@ -103,6 +108,16 @@ public class CommentsServiceImpl implements CommentsService {
                 .flatMap(repository::delete);
     }
 
+    @Override
+    public Mono<Long> count() {
+        return repository.count();
+    }
+
+    @Override
+    public Mono<Long> count(CommentCriteria criteria) {
+        return null;
+    }
+
 
     // ========= ----- HELPERS ----- ========= //
     protected Function<Comment, Comment> updateCommentFromDto(UpdateCommentDTO dto) {
@@ -121,9 +136,9 @@ public class CommentsServiceImpl implements CommentsService {
     protected Comment createCommentFromDto(CreateCommentDTO d) {
         return Comment.builder()
                 .message(d.getMessage())
-                .publisherId(d.getPublisherId())
+                .ownerId(d.getPublisherId())
                 .recordId(d.getRecordId())
-                .publishedOn(new Date())
+                .publishedOn(LocalDateTime.now())
                 .build();
     }
 }

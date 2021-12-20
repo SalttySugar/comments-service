@@ -15,12 +15,9 @@ public abstract class CommentCriteriaConverters {
         public Query convert(CommentCriteria source) {
             Query query = new Query();
 
-            if (source.getRecordId() != null) {
-                query.addCriteria(Criteria.where("record_id").is(source.getRecordId()));
-            }
 
-            if (source.getRecordId() != null) {
-                query.addCriteria(Criteria.where("owner_id").is(source.getRecordId()));
+            if (source.getOwner() != null) {
+                query.addCriteria(Criteria.where("owner_id").is(source.getOwner()));
             }
 
             if (source.getAfter() != null) {
@@ -29,10 +26,6 @@ public abstract class CommentCriteriaConverters {
 
             if (source.getBefore() != null) {
                 query.addCriteria(Criteria.where("uploaded_on").lte(source.getBefore()));
-            }
-
-            if (source.getIds() != null) {
-                query.addCriteria(Criteria.where("id").in(source.getIds()));
             }
 
 

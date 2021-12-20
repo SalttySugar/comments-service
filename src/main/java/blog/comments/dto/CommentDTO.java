@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -18,9 +18,9 @@ public final class CommentDTO {
     String message;
     List<String> replies;
     @JsonProperty("published_on")
-    Date publishedOn;
+    LocalDateTime publishedOn;
     @JsonProperty("updated_on")
-    Date updatedOn;
+    LocalDateTime updatedOn;
     @JsonProperty("record_id")
     String recordId;
     @JsonProperty("publisher_id")

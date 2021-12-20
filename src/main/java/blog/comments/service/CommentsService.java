@@ -18,4 +18,6 @@ public interface CommentsService {
     Mono<Comment> save(Comment comment);
     Mono<Boolean> existsById(String id);
     Mono<Void> deleteById(String id);
+    Mono<Long> count();
+    Mono<Long> count(CommentCriteria criteria);
 }
