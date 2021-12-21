@@ -25,11 +25,7 @@ import java.util.Optional;
 @Validated
 @Api(tags = "Comments")
 @RestController
-@RequestMapping(
-        path = API.PATH,
-        consumes = MediaType.APPLICATION_JSON_VALUE,
-        produces = MediaType.APPLICATION_JSON_VALUE
-)
+@RequestMapping(API.PATH)
 public class CommentsController {
     private final CommentsService service;
     private final ApplicationConverter converter;
@@ -68,7 +64,7 @@ public class CommentsController {
     }
 
 
-    @PostMapping()
+    @PostMapping
     @ApiOperation("Create new comment")
     Mono<CommentDTO> create(@RequestBody @Valid CreateCommentDTO dto) {
         return service.create(dto)

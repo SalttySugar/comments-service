@@ -2,12 +2,3 @@ info:
   version: "1.0.0"
   title: My API title
   description: "Awesome description"
-
-spring:
-  data:
-    mongodb:
-      port: 27017
-      username: root
-      password: root
-      host: localhost
-      database: admin
