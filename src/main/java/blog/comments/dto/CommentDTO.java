@@ -16,7 +16,6 @@ import java.util.List;
 public final class CommentDTO {
     String id;
     String message;
-    List<String> replies;
     @JsonProperty("published_on")
     LocalDateTime publishedOn;
     @JsonProperty("updated_on")

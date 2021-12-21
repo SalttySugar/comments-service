@@ -27,6 +27,4 @@ public class Comment {
     LocalDateTime publishedOn;
     @Field("updated_on")
     LocalDateTime updatedOn;
-    @Builder.Default
-    List<Comment> replies = new ArrayList<>();
 }

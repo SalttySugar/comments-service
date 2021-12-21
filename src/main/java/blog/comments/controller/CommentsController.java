@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
@@ -86,16 +85,4 @@ public class CommentsController {
     }
 
 
-    // === REPLIES === //
-    @PostMapping("/{id}/replies")
-    Mono<CommentDTO> createReply(@PathVariable String id, @RequestBody CreateCommentDTO dto) {
-        return service.addReply(id, dto)
-                .map(converter.convert(CommentDTO.class));
-    }
-
-    @GetMapping("/{id}/replies")
-    Flux<CommentDTO> getReplies(@PathVariable String id) {
-        return service.getReplies(id)
-                .map(converter.convert(CommentDTO.class));
-    }
 }

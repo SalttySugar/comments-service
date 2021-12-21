@@ -70,25 +70,6 @@ public class CommentsServiceImpl implements CommentsService {
                 .doOnNext(comment -> publisher.publishEvent(new CommentUpdatedEvent(this, comment)));
     }
 
-    @Override
-    public Mono<Comment> addReply(String id, CreateCommentDTO dto) {
-        return repository.findById(id)
-                .flatMap(comment ->
-                        Mono.just(dto)
-                                .flatMap(this::create)
-                                .map(c -> {
-                                    comment.getReplies().add(c);
-                                    return comment;
-                                })
-                );
-
-    }
-
-    @Override
-    public Flux<Comment> getReplies(String id) {
-        return repository.findById(id)
-                .flatMapIterable(Comment::getReplies);
-    }
 
     @Override
     public Mono<Comment> save(Comment comment) {
