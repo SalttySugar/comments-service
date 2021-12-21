@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    kubernetes:
+      enabled: ${env.CLOUD_KUBERNETES_ENABLED:false}
+      config:
+        name: ${env.CLOUD_KUBERNETES_CONFIG_NAME:config}
+        namespace: ${env.CLOUD_KUBERNETES_CONFIG_NAMESPACE:default}
