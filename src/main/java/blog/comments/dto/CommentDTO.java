@@ -23,6 +23,6 @@ public final class CommentDTO {
     LocalDateTime updatedOn;
     @JsonProperty("record_id")
     String recordId;
-    @JsonProperty("publisher_id")
-    String publisherId;
+    @JsonProperty("owner_id")
+    String ownerId;
 }

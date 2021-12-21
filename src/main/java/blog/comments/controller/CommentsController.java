@@ -10,7 +10,6 @@ import blog.comments.service.CommentsService;
 import blog.comments.utils.ApplicationConverter;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -35,19 +34,19 @@ public class CommentsController {
     @ApiOperation("Retrieve list of comments")
     Mono<ResponseEntity<List<CommentDTO>>> findAll(
             CommentCriteria criteria,
-            @RequestParam(required = false, defaultValue = "1") Long offset,
+            @RequestParam(required = false, defaultValue = "0") Long offset,
             @RequestParam(required = false, defaultValue = "10") Long limit
     ) {
         return Mono.just(ResponseEntity.ok())
-                .flatMap(response -> service.count()
-                        .map(total -> response
-                                .header(Headers.TOTAL_RECORDS, String.valueOf(total))
-                        ))
+                .flatMap(response -> Optional.of(criteria)
+                        .map(service::count)
+                        .orElseGet(service::count)
+                        .map(total -> response.header(Headers.TOTAL_RECORDS, String.valueOf(total))))
                 .flatMap(response -> Optional.of(criteria)
                         .map(service::findAll)
                         .orElseGet(service::findAll)
-                        .take(limit)
                         .skip(offset)
+                        .take(limit)
                         .map(converter.convert(CommentDTO.class))
                         .collectList()
                         .map(response::body)

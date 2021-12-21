@@ -14,6 +14,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +30,14 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.util.ISO8601Date
 import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
 
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -60,17 +64,19 @@ class CommentsApplicationTests extends BaseIntegrationTest {
     @Autowired
     CommentsService commentsService;
 
-
     @Autowired
     ApplicationConverter converter;
 
     @Autowired
     WebTestClient client;
 
+
+
     @Test
     void contextLoads() {
 
     }
+
 
     @Nested
     @SpringBootTest
@@ -91,22 +97,20 @@ class CommentsApplicationTests extends BaseIntegrationTest {
                     .exchange()
                     .expectStatus().isOk()
                     .expectBody()
-                    .jsonPath("$.id").value(equalTo(comment.getId()))
-                    .jsonPath("$.message").value(equalTo(comment.getMessage()))
-                    .jsonPath("$.publisher_id").value(equalTo(comment.getOwnerId()))
-                    .jsonPath("$.record_id").value(equalTo(comment.getRecordId()))
-                    .jsonPath("$.published_on").value(equalTo(comment.getPublishedOn()))
-                    .jsonPath("$.updated_on").value(equalTo(comment.getUpdatedOn()));
+                    .jsonPath("$.id").value(is(comment.getId()))
+                    .jsonPath("$.message").value(is(comment.getMessage()))
+                    .jsonPath("$.owner_id").value(is(comment.getOwnerId()))
+                    .jsonPath("$.record_id").value(is(comment.getRecordId()))
+                    .jsonPath("$.published_on").value(not(empty()))
+                    .jsonPath("$.updated_on").value(is(comment.getUpdatedOn()));
         }
 
         @Test
         void shouldReturnPaginatedCollectionOfComments() {
-            var result = IntStream.rangeClosed(1, 20)
-                    .mapToObj(i -> Comment.builder().build())
-                    .map(comment -> commentsService.save(comment).block())
-                    .filter(Objects::nonNull)
-                    .map(Comment::getId)
-                    .collect(Collectors.toList());
+            for (int i = 0; i < 20; i++) {
+                commentsService.save(Comment.builder().build()).block();
+            }
+
 
             client.get()
                     .uri(uriBuilder -> uriBuilder
@@ -120,8 +124,22 @@ class CommentsApplicationTests extends BaseIntegrationTest {
                     .expectHeader().value(Headers.TOTAL_RECORDS, is("20"))
                     .expectBody()
                     .jsonPath("$").isArray()
-                    .jsonPath("$").value(hasSize(15))
-                    .jsonPath("$[*].id").value(oneOf(result));
+                    .jsonPath("$").value(hasSize(15));
+
+
+            client.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(API.PATH)
+                            .queryParam("offset", 15)
+                            .queryParam("limit", 15)
+                            .build())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectHeader().value(Headers.TOTAL_RECORDS, is("20"))
+                    .expectBody()
+                    .jsonPath("$").isArray()
+                    .jsonPath("$").value(hasSize(5));
         }
 
         @Test
@@ -130,13 +148,6 @@ class CommentsApplicationTests extends BaseIntegrationTest {
             var dto = new UpdateCommentDTO("valid comment message");
             client.get()
                     .uri(uri)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .exchange()
-                    .expectStatus().isNotFound();
-
-            client.put()
-                    .uri(uri)
-                    .body(BodyInserters.fromValue(dto))
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isNotFound();
@@ -161,10 +172,10 @@ class CommentsApplicationTests extends BaseIntegrationTest {
                     .expectBody()
                     .jsonPath("$.id").exists()
                     .jsonPath("$.message").value(equalTo(dto.getMessage()))
-                    .jsonPath("$.publisher_id").value(equalTo(dto.getPublisherId()))
+                    .jsonPath("$.owner_id").value(equalTo(dto.getPublisherId()))
                     .jsonPath("$.record_id").value(equalTo(dto.getRecordId()))
                     .jsonPath("$.published_on").exists()
-                    .jsonPath("$.updated_on").exists();
+                    .jsonPath("$.updated_on").value(nullValue());
         }
 
         @Test
@@ -189,12 +200,11 @@ class CommentsApplicationTests extends BaseIntegrationTest {
                     .exchange()
                     .expectStatus().isOk()
                     .expectBody()
-                    .jsonPath("$.id").value(equalTo(comment.getId()))
-                    .jsonPath("$.message").value(equalTo(dto.getMessage()))
-                    .jsonPath("$.publisher_id").value(equalTo(comment.getOwnerId()))
-                    .jsonPath("$.record_id").value(equalTo(comment.getRecordId()))
-                    .jsonPath("$.published_on").value(equalTo(comment.getPublishedOn()))
-                    .jsonPath("$.updated_on").exists();
+                    .jsonPath("$.id").value(is(comment.getId()))
+                    .jsonPath("$.message").value(is(dto.getMessage()))
+                    .jsonPath("$.owner_id").value(is(comment.getOwnerId()))
+                    .jsonPath("$.record_id").value(is(comment.getRecordId()))
+                    .jsonPath("$.updated_on").value(not(empty()));
 
         }
 
@@ -257,24 +267,6 @@ class CommentsApplicationTests extends BaseIntegrationTest {
 
     }
 
-    @Nested
-    @SpringBootTest
-    class CommentsApplicationEventsTests {
-        @Test
-        void shouldFireEventWhenCommentCreated() {
-            throw new RuntimeException("not implemented");
-        }
-
-        @Test
-        void shouldFireEventWhenCommentUpdated() {
-            throw new RuntimeException("not implemented");
-        }
-
-        @Test
-        void shouldFireEventWhenCommentDeleted() {
-            throw new RuntimeException("not implemented");
-        }
-    }
 
 
     @Nested
@@ -282,51 +274,27 @@ class CommentsApplicationTests extends BaseIntegrationTest {
     class CommentsApplicationFiltersTests {
         @Test
         void shouldReturnCollectionOfCommentsBeforeSpecificDate() {
-            List<Comment> comments;
-            List<String> match = new ArrayList<>();
-
-            comments = IntStream.rangeClosed(1, 10)
-                    .mapToObj(i -> Comment.builder()
-                            .ownerId("1")
-                            .recordId("1")
-                            .message("test_comment_#" + i)
-                            .build())
-                    .collect(Collectors.toList());
-
+            //TODO: add date check
             commentsService.save(Comment.builder()
-                    .ownerId("1")
-                    .recordId("1")
-                    .message("test_result_comment_#1")
                     .publishedOn(LocalDateTime.now().minusWeeks(1))
-                    .build())
-                    .doOnNext(comments::add)
-                    .map(Comment::getId)
-                    .doOnNext(match::add)
-                    .block();
-
+                    .build()
+            ).block();
 
             commentsService.save(Comment.builder()
-                    .ownerId("1")
-                    .recordId("1")
-                    .message("test_result_comment_#2")
-                    .publishedOn(LocalDateTime.now().minusWeeks(2))
-                    .build())
-                    .doOnNext(comments::add)
-                    .map(Comment::getId)
-                    .doOnNext(match::add)
-                    .block();
-
-
-            commentsService.save(Comment.builder()
-                    .ownerId("1")
-                    .recordId("1")
-                    .message("test_result_comment_#3")
                     .publishedOn(LocalDateTime.now().minusWeeks(1))
-                    .build())
-                    .doOnNext(comments::add)
-                    .map(Comment::getId)
-                    .doOnNext(match::add)
-                    .block();
+                    .build()
+            ).block();
+
+
+            commentsService.save(Comment.builder()
+                    .publishedOn(LocalDateTime.now())
+                    .build()
+            ).block();
+
+            commentsService.save(Comment.builder()
+                    .publishedOn(LocalDateTime.now())
+                    .build()
+            ).block();
 
 
             var filters = CommentCriteria.builder()
@@ -341,18 +309,55 @@ class CommentsApplicationTests extends BaseIntegrationTest {
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isOk()
+                    .expectHeader().value(Headers.TOTAL_RECORDS, is("2"))
                     .expectBody()
                     .jsonPath("$").isArray()
-                    .jsonPath("$").value(hasSize(match.size()))
-                    .jsonPath("$[*].id").value(is(match));
+                    .jsonPath("$").value(hasSize(2));
 
         }
 
         @Test
         void shouldReturnCollectionOfCommentsAfterSpecificDate() {
-            throw new RuntimeException("not implemented");
-        }
+            //TODO: add date check
+            commentsService.save(Comment.builder()
+                    .publishedOn(LocalDateTime.now().minusWeeks(3))
+                    .build()
+            ).block();
 
+            commentsService.save(Comment.builder()
+                    .publishedOn(LocalDateTime.now().minusWeeks(3))
+                    .build()
+            ).block();
+
+
+            commentsService.save(Comment.builder()
+                    .publishedOn(LocalDateTime.now().minusWeeks(1))
+                    .build()
+            ).block();
+
+            commentsService.save(Comment.builder()
+                    .publishedOn(LocalDateTime.now().minusWeeks(1))
+                    .build()
+            ).block();
+
+
+            var filters = CommentCriteria.builder()
+                    .after(LocalDateTime.now().minusWeeks(2))
+                    .build();
+            client.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(API.PATH)
+                            .queryParams(Helpers.convertToMultiValueMap(filters))
+                            .build()
+                    )
+                    .accept(MediaType.APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectHeader().value(Headers.TOTAL_RECORDS, is("2"))
+                    .expectBody()
+                    .jsonPath("$").isArray()
+                    .jsonPath("$").value(hasSize(2));
+        }
         @Test
         void shouldReturnCollectionOfCommentsCreatedBySpecificOwner() {
             List<Comment> comments = new ArrayList<>();
@@ -384,10 +389,11 @@ class CommentsApplicationTests extends BaseIntegrationTest {
                     .doOnNext(comments::add)
                     .block();
 
-            List<CommentDTO> match = comments
+            var match = comments
                     .stream()
                     .filter(comment -> comment.getOwnerId().equals("2"))
                     .map(converter.convert(CommentDTO.class))
+                    .map(CommentDTO::getId)
                     .collect(Collectors.toList());
 
 
@@ -404,20 +410,75 @@ class CommentsApplicationTests extends BaseIntegrationTest {
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isOk()
-                    .expectBody();
+                    .expectHeader().value(Headers.TOTAL_RECORDS, is("2"))
+                    .expectBody()
+                    .jsonPath("$").value(hasSize(match.size()))
+                    .jsonPath("$[*].id").value((is(match)));
 
         }
 
         @Test
         void shouldReturnCollectionOfCommentsThatBelongsToSpecificRecord() {
-            throw new RuntimeException("not implemented");
-        }
+            commentsService.save(Comment.builder()
+                    .ownerId("1")
+                    .recordId("1")
+                    .build()
+            )
+                    .block();
+
+            commentsService.save(Comment.builder()
+                    .ownerId("1")
+                    .recordId("1")
+                    .build()
+            )
+                    .block();
+
+            commentsService.save(Comment.builder()
+                    .ownerId("1")
+                    .recordId("2")
+                    .build()
+            )
+                    .block();
 
 
-        @Test
-        void shouldReturnCollectionOfCommentsThatMatchSpecificIds() {
-            throw new RuntimeException("not implemented");
+            commentsService.save(Comment.builder()
+                    .ownerId("1")
+                    .recordId("2")
+                    .build()
+            )
+                    .block();
+
+
+            commentsService.save(Comment.builder()
+                    .ownerId("1")
+                    .recordId("2")
+                    .build()
+            )
+                    .block();
+
+
+            var query = Helpers.convertToMultiValueMap(CommentCriteria.builder()
+                    .record("2")
+                    .build());
+
+            client.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path(API.PATH)
+                            .queryParams(query)
+                            .build()
+                    )
+                    .accept(MediaType.APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectHeader().value(Headers.TOTAL_RECORDS, is("3"))
+                    .expectBody()
+                    .jsonPath("$").isArray()
+                    .jsonPath("$").value(hasSize(3))
+                    .jsonPath("$[0].record_id").value(is("2"))
+                    .jsonPath("$[1].record_id").value(is("2"))
+                    .jsonPath("$[2].record_id").value(is("2"));
         }
+
     }
 
 }

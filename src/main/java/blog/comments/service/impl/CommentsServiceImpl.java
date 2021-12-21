@@ -20,7 +20,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.function.Function;
 
 @Service
@@ -109,13 +108,20 @@ public class CommentsServiceImpl implements CommentsService {
     }
 
     @Override
+    public Mono<Void> deleteAll() {
+        return repository.deleteAll();
+    }
+
+    @Override
     public Mono<Long> count() {
         return repository.count();
     }
 
     @Override
     public Mono<Long> count(CommentCriteria criteria) {
-        return null;
+        return Mono.just(criteria)
+                .map(converter.convert(Query.class))
+                .flatMap(query -> template.count(query, Comment.class));
     }
 
 
@@ -125,11 +131,6 @@ public class CommentsServiceImpl implements CommentsService {
             comment.setMessage(dto.getMessage());
             return comment;
         };
-    }
-
-    protected Flux<Comment> getRepliesFromIdsCollection(Collection<String> ids) {
-        return Flux.fromStream(ids.stream())
-                .flatMap(repository::findById);
     }
 
 

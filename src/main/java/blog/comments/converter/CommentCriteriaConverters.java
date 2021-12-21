@@ -21,13 +21,16 @@ public abstract class CommentCriteriaConverters {
             }
 
             if (source.getAfter() != null) {
-                query.addCriteria(Criteria.where("uploaded_on").gte(source.getAfter()));
+                query.addCriteria(Criteria.where("published_on").gte(source.getAfter()));
             }
 
             if (source.getBefore() != null) {
-                query.addCriteria(Criteria.where("uploaded_on").lte(source.getBefore()));
+                query.addCriteria(Criteria.where("published_on").lte(source.getBefore()));
             }
 
+            if(source.getRecord() != null) {
+                query.addCriteria(Criteria.where("record_id").is(source.getRecord()));
+            }
 
             return query;
         }
