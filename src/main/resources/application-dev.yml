@@ -8,3 +8,8 @@ spring:
       password: root
       host: localhost
       database: admin
+  cloud:
+    kubernetes:
+      enabled: false
+      config:
+        enabled: false
