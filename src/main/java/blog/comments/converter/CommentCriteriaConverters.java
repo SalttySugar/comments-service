@@ -20,12 +20,18 @@ public abstract class CommentCriteriaConverters {
                 query.addCriteria(Criteria.where("owner_id").is(source.getOwner()));
             }
 
-            if (source.getAfter() != null) {
-                query.addCriteria(Criteria.where("published_on").gte(source.getAfter()));
-            }
 
-            if (source.getBefore() != null) {
-                query.addCriteria(Criteria.where("published_on").lte(source.getBefore()));
+            if (source.getBefore() != null || source.getAfter() != null) {
+                var criteria = Criteria.where("published_on");
+                if(source.getBefore() != null) {
+                    criteria.lte(source.getBefore());
+                }
+
+                if(source.getAfter() != null) {
+                    criteria.gte(source.getAfter());
+                }
+
+                query.addCriteria(criteria);
             }
 
             if(source.getRecord() != null) {

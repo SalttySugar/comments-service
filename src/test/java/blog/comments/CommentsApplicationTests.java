@@ -14,8 +14,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +28,10 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.util.ISO8601Date
 import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 import static org.hamcrest.Matchers.*;
@@ -121,7 +116,7 @@ class CommentsApplicationTests extends BaseIntegrationTest {
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isOk()
-                    .expectHeader().value(Headers.TOTAL_RECORDS, is("20"))
+                    .expectHeader().value(Headers.TOTAL_COUNT, is("20"))
                     .expectBody()
                     .jsonPath("$").isArray()
                     .jsonPath("$").value(hasSize(15));
@@ -136,7 +131,7 @@ class CommentsApplicationTests extends BaseIntegrationTest {
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isOk()
-                    .expectHeader().value(Headers.TOTAL_RECORDS, is("20"))
+                    .expectHeader().value(Headers.TOTAL_COUNT, is("20"))
                     .expectBody()
                     .jsonPath("$").isArray()
                     .jsonPath("$").value(hasSize(5));
@@ -309,7 +304,7 @@ class CommentsApplicationTests extends BaseIntegrationTest {
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isOk()
-                    .expectHeader().value(Headers.TOTAL_RECORDS, is("2"))
+                    .expectHeader().value(Headers.TOTAL_COUNT, is("2"))
                     .expectBody()
                     .jsonPath("$").isArray()
                     .jsonPath("$").value(hasSize(2));
@@ -353,7 +348,7 @@ class CommentsApplicationTests extends BaseIntegrationTest {
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isOk()
-                    .expectHeader().value(Headers.TOTAL_RECORDS, is("2"))
+                    .expectHeader().value(Headers.TOTAL_COUNT, is("2"))
                     .expectBody()
                     .jsonPath("$").isArray()
                     .jsonPath("$").value(hasSize(2));
@@ -410,7 +405,7 @@ class CommentsApplicationTests extends BaseIntegrationTest {
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isOk()
-                    .expectHeader().value(Headers.TOTAL_RECORDS, is("2"))
+                    .expectHeader().value(Headers.TOTAL_COUNT, is("2"))
                     .expectBody()
                     .jsonPath("$").value(hasSize(match.size()))
                     .jsonPath("$[*].id").value((is(match)));
@@ -470,7 +465,7 @@ class CommentsApplicationTests extends BaseIntegrationTest {
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isOk()
-                    .expectHeader().value(Headers.TOTAL_RECORDS, is("3"))
+                    .expectHeader().value(Headers.TOTAL_COUNT, is("3"))
                     .expectBody()
                     .jsonPath("$").isArray()
                     .jsonPath("$").value(hasSize(3))

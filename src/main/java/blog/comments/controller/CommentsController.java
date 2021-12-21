@@ -11,6 +11,7 @@ import blog.comments.utils.ApplicationConverter;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -20,14 +21,19 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
-@RestController
-@RequestMapping(API.PATH)
 @RequiredArgsConstructor
 @Validated
 @Api(tags = "Comments")
+@RestController
+@RequestMapping(
+        path = API.PATH,
+        consumes = MediaType.APPLICATION_JSON_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+)
 public class CommentsController {
     private final CommentsService service;
     private final ApplicationConverter converter;
+
 
     @GetMapping
     @ApiOperation("Retrieve list of comments")
@@ -40,7 +46,7 @@ public class CommentsController {
                 .flatMap(response -> Optional.of(criteria)
                         .map(service::count)
                         .orElseGet(service::count)
-                        .map(total -> response.header(Headers.TOTAL_RECORDS, String.valueOf(total))))
+                        .map(total -> response.header(Headers.TOTAL_COUNT, String.valueOf(total))))
                 .flatMap(response -> Optional.of(criteria)
                         .map(service::findAll)
                         .orElseGet(service::findAll)
@@ -62,7 +68,7 @@ public class CommentsController {
     }
 
 
-    @PostMapping
+    @PostMapping()
     @ApiOperation("Create new comment")
     Mono<CommentDTO> create(@RequestBody @Valid CreateCommentDTO dto) {
         return service.create(dto)
