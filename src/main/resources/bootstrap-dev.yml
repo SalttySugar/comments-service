@@ -1,0 +1,9 @@
+spring:
+  cloud:
+    kubernetes:
+      enabled: false
+kubernetes:
+  informer:
+    enabled: false
+  manifests:
+    enabled: false

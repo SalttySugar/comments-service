@@ -1,0 +1,67 @@
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: blog
+  name: namespace-reader
+rules:
+  - apiGroups: [ "", "extensions", "apps" ]
+    resources: [ "configmaps", "secrets", ]
+    verbs: [ "get", "list", "watch" ]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: blog
+  name: namespace-reader-to-default-role-binding
+subjects:
+  - kind: ServiceAccount
+    name: default
+roleRef:
+  apiGroup: ""
+  kind: Role
+  name: namespace-reader
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: comments-service
+  namespace: blog
+  labels:
+    app: comments-service
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      nodePort: 30500
+      protocol: TCP
+  selector:
+    app: comments-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: blog
+  name: comments-service
+  labels:
+    app: comments-service
+spec:
+  selector:
+    matchLabels:
+      app: comments-service
+  template:
+    metadata:
+      name: comments-service
+      namespace: blog
+      labels:
+        app: comments-service
+    spec:
+      containers:
+        - name: comments-service
+          image: pilipchukbogdan90/comments-service
+          env:
+            - name: CONFIG_NAME
+              value: comments-service-config
+            - name: CONFIG_NAMESPACE
+              value: blog
+          ports:
+            - containerPort: 80

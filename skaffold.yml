@@ -1,0 +1,13 @@
+apiVersion: skaffold/v2beta6
+kind: Config
+build:
+  artifacts:
+    - image: pilipchukbogdan90/comments-service
+      docker:
+        dockerfile: Dockerfile
+  local: { }
+deploy:
+  kubectl:
+    manifests:
+      - configmap.yml
+      - deployment.yml

@@ -1,7 +1,12 @@
 spring:
   cloud:
     kubernetes:
-      enabled: ${env.CLOUD_KUBERNETES_ENABLED:false}
+      discovery:
+        enabled: false
       config:
-        name: ${env.CLOUD_KUBERNETES_CONFIG_NAME:config}
-        namespace: ${env.CLOUD_KUBERNETES_CONFIG_NAMESPACE:default}
+        sources:
+#          - namespace: ${CONFIG_NAMESPACE}
+#            name: ${CONFIG_NAME}}
+          - namespace: blog
+          - name: comments-service-config
+        enabled: true

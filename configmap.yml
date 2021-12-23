@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: comments-service-config
+  namespace: blog
+  labels:
+    app: comments-service
+data:
+  application.yml: |-
+    spring:
+      data:
+        mongodb:
+          port: 27017
+          username: root
+          password: RcO2ZzVTP9
+          host: mongodb
+          database: admin
