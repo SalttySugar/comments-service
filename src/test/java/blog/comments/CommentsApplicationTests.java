@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +66,10 @@ class CommentsApplicationTests extends BaseIntegrationTest {
     @Autowired
     WebTestClient client;
 
-
+    @AfterEach
+    void tearDown() {
+        commentsService.deleteAll().block();
+    }
 
     @Test
     void contextLoads() {

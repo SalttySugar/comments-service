@@ -1,0 +1,4 @@
+1) add cluster-role and cluster-role binding to allow config maps
+2) design a better api and refactor it
+3) add sub-chart bitnami db
+4) extract chart to separate repository
