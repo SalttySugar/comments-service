@@ -1,0 +1,17 @@
+version: 2.1
+jobs:
+  test:
+    machine:
+      image: ubuntu-2004:202008-01
+    steps:
+      - checkout
+      - run:
+          name: Build
+          command: mvn  -DskipTests clean package
+      - run:
+          name: Test
+          command: mvn test
+workflows:
+  default:
+    jobs:
+      - test
