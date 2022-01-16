@@ -10,7 +10,9 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 
 @EnableWebFluxSecurity
 @EnableGlobalMethodSecurity(
@@ -25,25 +27,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public MapReactiveUserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        UserDetails user = User
-                .withUsername("user")
-                .password(passwordEncoder.encode("password"))
-                .roles("USER")
-                .build();
-        return new MapReactiveUserDetailsService(user);
-    }
-
-    @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+        http.csrf().disable();
+        http.formLogin().disable();
 
-
-        return http.authorizeExchange()
+        http.authorizeExchange()
                 .anyExchange().permitAll()
                 .and()
-                .csrf().disable()
-                .httpBasic().disable()
-                .formLogin().disable()
-                .build();
+                .oauth2ResourceServer()
+                .jwt();
+        return http.build();
     }
 }
